@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10" style="-fx-padding: 20;"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="at.fhtw.energy_gui.HelloController">
+
+  <Label text="Current Hour" style="-fx-font-weight: bold;"/>
+  <Label fx:id="communityPoolLabel" text="Community Pool: -"/>
+  <Label fx:id="gridPortionLabel" text="Grid Portion: -"/>
+  <Button text="Refresh" onAction="#handleRefresh"/>
+
+  <Separator/>
+
+  <Label text="Historical Data" style="-fx-font-weight: bold;"/>
+  <HBox spacing="10">
+    <Label text="Start:"/>
+    <TextField fx:id="startField" promptText="2025-01-10T00:00:00"/>
+  </HBox>
+  <HBox spacing="10">
+    <Label text="End:"/>
+    <TextField fx:id="endField" promptText="2025-01-10T23:59:59"/>
+  </HBox>
+  <Button text="Show Data" onAction="#handleShowData"/>
+
+  <Separator/>
+
+  <Label fx:id="producedLabel" text="Community produced: -"/>
+  <Label fx:id="usedLabel" text="Community used: -"/>
+  <Label fx:id="gridUsedLabel" text="Grid used: -"/>
+
+</VBox>
