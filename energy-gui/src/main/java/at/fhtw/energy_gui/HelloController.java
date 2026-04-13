@@ -25,8 +25,8 @@ public class HelloController {
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             String body = response.body();
-            double depleted = parseValue(body, "communityDepleted");
-            double grid = parseValue(body, "gridPortion");
+            double depleted = parseValue(body, "community_depleted");
+            double grid = parseValue(body, "grid_portion");
             communityPoolLabel.setText("Community Pool: " + depleted + "% used");
             gridPortionLabel.setText("Grid Portion: " + grid + "%");
         } catch (Exception e) {
@@ -44,9 +44,9 @@ public class HelloController {
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             String body = response.body();
-            double produced = parseValue(body, "communityProduced");
-            double used = parseValue(body, "communityUsed");
-            double gridUsed = parseValue(body, "gridUsed");
+            double produced = parseValue(body, "community_produced");
+            double used = parseValue(body, "community_used");
+            double gridUsed = parseValue(body, "grid_used");
             producedLabel.setText("Community produced: " + produced + " kWh");
             usedLabel.setText("Community used: " + used + " kWh");
             gridUsedLabel.setText("Grid used: " + gridUsed + " kWh");
@@ -62,6 +62,8 @@ public class HelloController {
         int start = idx + search.length();
         int end = json.indexOf(",", start);
         if (end == -1) end = json.indexOf("}", start);
-        return Double.parseDouble(json.substring(start, end).trim());
+        String valueStr = json.substring(start, end).trim();
+        valueStr = valueStr.replaceAll("[^0-9.]", "");
+        return Double.parseDouble(valueStr);
     }
 }
