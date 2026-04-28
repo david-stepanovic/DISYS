@@ -1,33 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
-<VBox spacing="10" style="-fx-padding: 20;"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="at.fhtw.energy_gui.HelloController">
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="at.fhtw.energy_gui.HelloController"
+      style="-fx-border-color: #555; -fx-border-width: 1; -fx-background-color: white;"
+      maxWidth="340" spacing="0">
 
-  <Label text="Current Hour" style="-fx-font-weight: bold;"/>
-  <Label fx:id="communityPoolLabel" text="Community Pool: -"/>
-  <Label fx:id="gridPortionLabel" text="Grid Portion: -"/>
-  <Button text="Refresh" onAction="#handleRefresh"/>
-
-  <Separator/>
-
-  <Label text="Historical Data" style="-fx-font-weight: bold;"/>
-  <HBox spacing="10">
-    <Label text="Start:"/>
-    <TextField fx:id="startField" promptText="2025-01-10T00:00:00"/>
-  </HBox>
-  <HBox spacing="10">
-    <Label text="End:"/>
-    <TextField fx:id="endField" promptText="2025-01-10T23:59:59"/>
-  </HBox>
-  <Button text="Show Data" onAction="#handleShowData"/>
+  <!-- Current data section -->
+  <GridPane>
+    <columnConstraints>
+      <ColumnConstraints minWidth="150" hgrow="SOMETIMES"/>
+      <ColumnConstraints minWidth="150" hgrow="ALWAYS"/>
+    </columnConstraints>
+    <padding><Insets top="6" right="10" bottom="2" left="10"/></padding>
+    <Label text="Community Pool" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+    <Label fx:id="communityPoolLabel" text="-" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+  </GridPane>
 
   <Separator/>
 
-  <Label fx:id="producedLabel" text="Community produced: -"/>
-  <Label fx:id="usedLabel" text="Community used: -"/>
-  <Label fx:id="gridUsedLabel" text="Grid used: -"/>
+  <GridPane>
+    <columnConstraints>
+      <ColumnConstraints minWidth="150" hgrow="SOMETIMES"/>
+      <ColumnConstraints minWidth="150" hgrow="ALWAYS"/>
+    </columnConstraints>
+    <padding><Insets top="2" right="10" bottom="6" left="10"/></padding>
+    <Label text="Grid Portion" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+    <Label fx:id="gridPortionLabel" text="-" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+  </GridPane>
+
+  <VBox style="-fx-padding: 4 10 6 10;">
+    <Button text="refresh" onAction="#handleRefresh"/>
+  </VBox>
+
+  <Separator/>
+
+  <!-- Historical filter section -->
+  <GridPane hgap="8">
+    <columnConstraints>
+      <ColumnConstraints minWidth="50" hgrow="NEVER"/>
+      <ColumnConstraints hgrow="ALWAYS"/>
+    </columnConstraints>
+    <padding><Insets top="6" right="10" bottom="2" left="10"/></padding>
+    <Label text="Start" GridPane.rowIndex="0" GridPane.columnIndex="0"
+           style="-fx-alignment: CENTER_LEFT;" maxHeight="Infinity"/>
+    <ComboBox fx:id="startBox" GridPane.rowIndex="0" GridPane.columnIndex="1"
+              maxWidth="Infinity" editable="true"/>
+  </GridPane>
+
+  <Separator/>
+
+  <GridPane hgap="8">
+    <columnConstraints>
+      <ColumnConstraints minWidth="50" hgrow="NEVER"/>
+      <ColumnConstraints hgrow="ALWAYS"/>
+    </columnConstraints>
+    <padding><Insets top="2" right="10" bottom="6" left="10"/></padding>
+    <Label text="End" GridPane.rowIndex="0" GridPane.columnIndex="0"
+           style="-fx-alignment: CENTER_LEFT;" maxHeight="Infinity"/>
+    <ComboBox fx:id="endBox" GridPane.rowIndex="0" GridPane.columnIndex="1"
+              maxWidth="Infinity" editable="true"/>
+  </GridPane>
+
+  <VBox style="-fx-padding: 4 10 6 10;">
+    <Button text="show data" onAction="#handleShowData"/>
+  </VBox>
+
+  <Separator/>
+
+  <!-- Historical results section -->
+  <GridPane>
+    <columnConstraints>
+      <ColumnConstraints minWidth="160" hgrow="SOMETIMES"/>
+      <ColumnConstraints minWidth="110" hgrow="ALWAYS"/>
+    </columnConstraints>
+    <padding><Insets top="6" right="10" bottom="6" left="10"/></padding>
+    <Label text="Community produced" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+    <Label fx:id="producedLabel" text="-" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+    <Label text="Community used" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+    <Label fx:id="usedLabel" text="-" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+    <Label text="Grid used" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+    <Label fx:id="gridUsedLabel" text="-" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+  </GridPane>
 
 </VBox>
