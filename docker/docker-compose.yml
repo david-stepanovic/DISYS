@@ -1,0 +1,27 @@
+services:
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: energy-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  postgres:
+    image: postgres:16
+    container_name: energy-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: energydb
+      POSTGRES_USER: energy
+      POSTGRES_PASSWORD: energy123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  postgres_data:
