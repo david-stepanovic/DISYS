@@ -42,7 +42,7 @@ public class UserRunner implements CommandLineRunner {
         }
     }
 
-    /
+    // Tageszeit
     private double calculateKwh(int hour) {
         double factor = demandFactor(hour);
         double base = factor * 0.05;                     // scaling zu plausiblem Wert
