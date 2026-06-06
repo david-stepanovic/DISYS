@@ -1,5 +1,7 @@
 package at.fhtw.energy_gui;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import java.net.URI;
@@ -23,14 +25,15 @@ public class HelloController {
     private static final DateTimeFormatter API_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
     private final HttpClient client = HttpClient.newHttpClient();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @FXML
     public void initialize() {
         List<String> options = generateOptions();
         startBox.getItems().addAll(options);
         endBox.getItems().addAll(options);
-        startBox.setValue("10.01.2025 14:00");
-        endBox.setValue("10.02.2025 14:00");
+        startBox.setValue("10.01.2025 00:00");
+        endBox.setValue("14.01.2025 23:00");
     }
 
     private List<String> generateOptions() {
@@ -51,9 +54,9 @@ public class HelloController {
                     .uri(URI.create("http://localhost:8080/energy/current"))
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            String body = response.body();
-            double depleted = parseValue(body, "community_depleted");
-            double grid = parseValue(body, "grid_portion");
+            JsonNode node = mapper.readTree(response.body());
+            double depleted = node.get("community_depleted").asDouble();
+            double grid = node.get("grid_portion").asDouble();
             communityPoolLabel.setText(depleted + "% used");
             gridPortionLabel.setText(grid + "%");
         } catch (Exception e) {
@@ -70,13 +73,16 @@ public class HelloController {
                     .uri(URI.create("http://localhost:8080/energy/historical?start=" + start + "&end=" + end))
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            String body = response.body();
-            double produced = parseValue(body, "community_produced");
-            double used = parseValue(body, "community_used");
-            double gridUsed = parseValue(body, "grid_used");
-            producedLabel.setText(produced + " kWh");
-            usedLabel.setText(used + " kWh");
-            gridUsedLabel.setText(gridUsed + " kWh");
+            JsonNode rows = mapper.readTree(response.body());
+            double produced = 0, used = 0, gridUsed = 0;
+            for (JsonNode row : rows) {
+                produced += row.get("community_produced").asDouble();
+                used += row.get("community_used").asDouble();
+                gridUsed += row.get("grid_used").asDouble();
+            }
+            producedLabel.setText(round(produced) + " kWh");
+            usedLabel.setText(round(used) + " kWh");
+            gridUsedLabel.setText(round(gridUsed) + " kWh");
         } catch (Exception e) {
             producedLabel.setText("Error: " + e.getMessage());
         }
@@ -90,14 +96,8 @@ public class HelloController {
         }
     }
 
-    private double parseValue(String json, String key) {
-        String search = "\"" + key + "\":";
-        int idx = json.indexOf(search);
-        if (idx == -1) return 0;
-        int start = idx + search.length();
-        int end = json.indexOf(",", start);
-        if (end == -1) end = json.indexOf("}", start);
-        String val = json.substring(start, end).trim().replaceAll("[^0-9.]", "");
-        try { return Double.parseDouble(val); } catch (Exception e) { return 0; }
+    // auf 3 Nachkommastellen runden
+    private double round(double value) {
+        return Math.round(value * 1000.0) / 1000.0;
     }
 }
