@@ -23,8 +23,13 @@ public class EnergyController {
 
     @GetMapping("/current")
     public Map<String, Object> getCurrent() {
-        return jdbc.queryForMap(
+        List<Map<String, Object>> rows = jdbc.queryForList(
             "SELECT hour, community_depleted, grid_portion FROM energy_percentage LIMIT 1");
+        if (rows.isEmpty()) {
+            // Anstatt fehler 0 zurückgeben wenn keine Daten vorhanden sind
+            return Map.of("community_depleted", 0.0, "grid_portion", 0.0);
+        }
+        return rows.get(0);
     }
 
     @GetMapping("/historical")

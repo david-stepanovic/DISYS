@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.http.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,20 +30,22 @@ public class HelloController {
 
     @FXML
     public void initialize() {
-        List<String> options = generateOptions();
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS);
+        List<String> options = generateOptions(now);
         startBox.getItems().addAll(options);
         endBox.getItems().addAll(options);
-        startBox.setValue("10.01.2025 00:00");
-        endBox.setValue("14.01.2025 23:00");
+        // Standard: heute 00:00 bis zur aktuellen Stunde
+        startBox.setValue(now.truncatedTo(ChronoUnit.DAYS).format(DISPLAY_FMT));
+        endBox.setValue(now.format(DISPLAY_FMT));
     }
 
-    private List<String> generateOptions() {
+    // die letzen 7 Tage bis heute
+    private List<String> generateOptions(LocalDateTime now) {
         List<String> options = new ArrayList<>();
-        LocalDateTime base = LocalDateTime.of(2025, 1, 10, 0, 0);
-        for (int day = 0; day < 5; day++) {
-            for (int hour = 0; hour < 24; hour++) {
-                options.add(base.plusDays(day).plusHours(hour).format(DISPLAY_FMT));
-            }
+        LocalDateTime t = now.minusDays(7);
+        while (!t.isAfter(now)) {
+            options.add(t.format(DISPLAY_FMT));
+            t = t.plusHours(1);
         }
         return options;
     }

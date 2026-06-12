@@ -10,7 +10,9 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-// Open meteo API
+// Wetterdaten von Open-Meteo
+// Quelle: https://open-meteo.com/en/docs
+// Verwendeter Endpunkt: https://api.open-meteo.com/v1/forecast?latitude=..&longitude=..&current=shortwave_radiation
 @Component
 public class WeatherClient {
 

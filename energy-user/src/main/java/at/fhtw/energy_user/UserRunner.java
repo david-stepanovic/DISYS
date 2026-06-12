@@ -27,16 +27,21 @@ public class UserRunner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         while (true) {
-            double kwh = calculateKwh(LocalDateTime.now().getHour());
-            EnergyMessage message = new EnergyMessage(
-                    "USER",
-                    "COMMUNITY",
-                    kwh,
-                    LocalDateTime.now().format(DATETIME_FORMAT));
+            try {
+                double kwh = calculateKwh(LocalDateTime.now().getHour());
+                EnergyMessage message = new EnergyMessage(
+                        "USER",
+                        "COMMUNITY",
+                        kwh,
+                        LocalDateTime.now().format(DATETIME_FORMAT));
 
-            String json = mapper.writeValueAsString(message);
-            rabbitTemplate.convertAndSend("energy.queue", json);
-            System.out.println("Sent: " + json);
+                String json = mapper.writeValueAsString(message);
+                rabbitTemplate.convertAndSend("energy.queue", json);
+                System.out.println("Sent: " + json);
+            } catch (Exception e) {
+                // z.B. RabbitMQ kurz weg
+                System.out.println("Senden fehlgeschlagen, weiter: " + e.getMessage());
+            }
 
             Thread.sleep(1000 + random.nextInt(4000)); // 1 bis 5 sec
         }

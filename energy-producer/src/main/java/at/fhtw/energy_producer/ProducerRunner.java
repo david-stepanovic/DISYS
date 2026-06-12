@@ -34,21 +34,26 @@ public class ProducerRunner implements CommandLineRunner {
         long lastWeatherFetch = System.currentTimeMillis();
 
         while (true) {
-            if (System.currentTimeMillis() - lastWeatherFetch > WEATHER_REFRESH_MS) {
-                radiation = weatherClient.getSolarRadiation();
-                lastWeatherFetch = System.currentTimeMillis();
+            try {
+                if (System.currentTimeMillis() - lastWeatherFetch > WEATHER_REFRESH_MS) {
+                    radiation = weatherClient.getSolarRadiation();
+                    lastWeatherFetch = System.currentTimeMillis();
+                }
+
+                double kwh = calculateKwh(radiation);
+                EnergyMessage message = new EnergyMessage(
+                        "PRODUCER",
+                        "COMMUNITY",
+                        kwh,
+                        LocalDateTime.now().format(DATETIME_FORMAT));
+
+                String json = mapper.writeValueAsString(message);
+                rabbitTemplate.convertAndSend("energy.queue", json);
+                System.out.println("Sent: " + json);
+            } catch (Exception e) {
+                // z.B. RabbitMQ kurz weg
+                System.out.println("Senden fehlgeschlagen, weiter: " + e.getMessage());
             }
-
-            double kwh = calculateKwh(radiation);
-            EnergyMessage message = new EnergyMessage(
-                    "PRODUCER",
-                    "COMMUNITY",
-                    kwh,
-                    LocalDateTime.now().format(DATETIME_FORMAT));
-
-            String json = mapper.writeValueAsString(message);
-            rabbitTemplate.convertAndSend("energy.queue", json);
-            System.out.println("Sent: " + json);
 
             Thread.sleep(1000 + random.nextInt(4000)); // 1 bis 5 sec
         }
