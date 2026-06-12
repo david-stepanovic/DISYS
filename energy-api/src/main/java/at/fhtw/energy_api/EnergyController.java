@@ -1,29 +1,40 @@
 package at.fhtw.energy_api;
 
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/energy")
 public class EnergyController {
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
+    private final JdbcTemplate jdbc;
+
+    public EnergyController(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
+
     @GetMapping("/current")
-    public CurrentEnergy getCurrent() {
-        return new CurrentEnergy(100.00, 5.63);
+    public Map<String, Object> getCurrent() {
+        return jdbc.queryForMap(
+            "SELECT hour, community_depleted, grid_portion FROM energy_percentage LIMIT 1");
     }
 
     @GetMapping("/historical")
-    public List<HistoricalEnergy> getHistorical(
+    public List<Map<String, Object>> getHistorical(
             @RequestParam String start,
             @RequestParam String end) {
-        // Testdaten
-        return List.of(
-                new HistoricalEnergy("2025-01-10T14:00:00", 143.024, 130.101, 14.75),
-                new HistoricalEnergy("2025-01-10T13:00:00", 120.500, 110.300, 12.50),
-                new HistoricalEnergy("2025-01-10T12:00:00", 98.750, 95.200, 8.30)
-        );
-   }
-    // Record anstatt standard klassen
-    record CurrentEnergy(double community_depleted, double grid_portion) {}
-    record HistoricalEnergy(String hour, double community_produced, double community_used, double grid_used) {}
+        Timestamp from = Timestamp.valueOf(LocalDateTime.parse(start, FORMATTER));
+        Timestamp to   = Timestamp.valueOf(LocalDateTime.parse(end,   FORMATTER));
+        return jdbc.queryForList(
+            "SELECT hour, community_produced, community_used, grid_used FROM energy_usage WHERE hour >= ? AND hour <= ? ORDER BY hour",
+            from, to);
+    }
 }
